@@ -1,7 +1,21 @@
-const targets = ['Bandeira', 'Forma de Pagamento', 'Valor'] // aqui vai o nome das colunas
+const targets = [] // aqui vai o nome das colunas
 
 const anchor = document.querySelector('a')
 const form = document.querySelector('form')
+const titlesLineInput = document.querySelector('#title-line')
+const columnsName = document.querySelector('#coluns-name')
+let titlesLine = 0
+
+function getColunmsNameTargetsAndLine() {
+  const names = columnsName.value
+  const nameList = names.split(',')
+
+  for (const name of nameList) {
+    targets.push(name.replace(' ', ''))
+  }
+
+  titlesLine = Number(titlesLineInput.value) - 1
+}
 
 function ConvertToCSV(objArray) {
   let array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray
@@ -20,14 +34,14 @@ function ConvertToCSV(objArray) {
   return str
 }
 
-function pegarDadosFiltrados(reader, targetsInput) {
+function pegarDadosFiltrados(reader, targetsInput, titlesLine) {
   const csv = reader.result
   const rows = String(csv).split('\n')
   const rowsFiltered = rows.map(row => row.replace('\r', ''))
   const dadosFiltrados = []
 
   const targetsIndex = []
-  const titles = rowsFiltered[0].split(';')
+  const titles = rowsFiltered[titlesLine].split(';')
 
   const targets = []
   for (const target of targetsInput) {
@@ -72,8 +86,10 @@ form.addEventListener('submit', e => {
   const reader = new FileReader()
   reader.readAsBinaryString(file)
 
+  getColunmsNameTargetsAndLine()
+
   reader.addEventListener('load', () => {
-    const dadosFiltrados = pegarDadosFiltrados(reader, targets)
+    const dadosFiltrados = pegarDadosFiltrados(reader, targets, titlesLine)
     gerarNovoCsv(dadosFiltrados, file)
   })
 })
